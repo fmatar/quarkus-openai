@@ -25,11 +25,11 @@ public class OpenAIClientTest {
 
 	@Test
 	public void testModelsEndpoint() {
-		var models = client.models();
+		var models = client.models().await().indefinitely();
 		assertThat(models.data(), is(not(empty())));
 		assertThat(models.object(), is(equalTo("list")));
 
-		var curieModel = client.model("curie");
+		var curieModel = client.model("curie").await().indefinitely();
 		assertThat(curieModel.getId(), is(equalTo("curie")));
 	}
 }

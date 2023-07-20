@@ -1,6 +1,7 @@
 package org.slixes.platform;
 
 import io.quarkus.logging.Log;
+import io.smallrye.mutiny.Uni;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -20,20 +21,17 @@ public interface OpenAIClient {
 
 	@GET
 	@Path("/models")
-	ListResponseWrapper<Model> models();
+	Uni<ListResponseWrapper<Model>> models();
 
 
 	@GET
 	@Path("/models/{id}")
-	Model model(@PathParam("id") String id);
+	Uni<Model> model(@PathParam("id") String id);
 
 
 	default String lookupAuth() {
-		var token = "Bearer " + ConfigProvider.getConfig().getValue("openai.token", String.class);
-		Log.info(token);
-		return token;
+		return "Bearer " + ConfigProvider.getConfig().getValue("openai.token", String.class);
 	}
-
 
 	record ListResponseWrapper<T>(String object, Set<T> data) {
 	}

@@ -7,7 +7,7 @@ import lombok.Value;
 import java.util.Set;
 
 @Builder
-@Data
+@Value
 public class Model {
 	String id;
 	String object;
