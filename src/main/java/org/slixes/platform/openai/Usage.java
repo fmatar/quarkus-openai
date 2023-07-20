@@ -11,7 +11,11 @@ import lombok.Value;
  * @param completionTokens The number of completion tokens used.
  * @param totalTokens      The number of total tokens used
  */
-public record Usage(@JsonProperty("prompt_tokens") long promptTokens,
-                    @JsonProperty("completion_tokens") long completionTokens,
-                    @JsonProperty("total_tokens") long totalTokens) {
+public class Usage {
+	@JsonProperty("prompt_tokens")
+	long promptTokens;
+	@JsonProperty("completion_tokens")
+	long completionTokens;
+	@JsonProperty("total_tokens")
+	long totalTokens;
 }

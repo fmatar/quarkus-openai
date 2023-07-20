@@ -8,6 +8,8 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.slixes.platform.openai.completion.CompletionRequest;
+import org.slixes.platform.openai.completion.CompletionResult;
 import org.slixes.platform.openai.model.Model;
 
 import java.util.Set;
@@ -27,6 +29,10 @@ public interface OpenAIClient {
 	@GET
 	@Path("/models/{id}")
 	Uni<Model> model(@PathParam("id") String id);
+
+	@POST
+	@Path("/completions")
+	Uni<CompletionResult> createCompletion(CompletionRequest request);
 
 
 	default String lookupAuth() {
