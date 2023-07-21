@@ -1,13 +1,15 @@
 package org.slixes.platform;
 
-import io.quarkus.logging.Log;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import jakarta.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.jboss.resteasy.reactive.RestStreamElementType;
+import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.completion.CompletionResult;
 import org.slixes.platform.openai.model.Model;
@@ -33,6 +35,12 @@ public interface OpenAIClient {
 	@POST
 	@Path("/completions")
 	Uni<CompletionResult> createCompletion(CompletionRequest request);
+
+	@POST
+	@Path("/completions")
+	@Produces(MediaType.SERVER_SENT_EVENTS)
+	@RestStreamElementType(MediaType.APPLICATION_JSON)
+	Multi<CompletionChunk> createStreamedCompletion(CompletionRequest request);
 
 
 	default String lookupAuth() {

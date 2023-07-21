@@ -1,6 +1,8 @@
 package org.slixes.platform.openai.completion;
 
 import java.util.List;
+
+import io.vertx.core.json.Json;
 import lombok.Data;
 
 /**
@@ -27,4 +29,8 @@ public class CompletionChunk {
 
   /** A list of generated completions. */
   List<CompletionChoice> choices;
+
+  public String toString() {
+    return Json.encode(this);
+  }
 }
