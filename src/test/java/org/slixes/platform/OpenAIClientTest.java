@@ -8,8 +8,11 @@ import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
+import org.slixes.platform.openai.ChatMessage;
+import org.slixes.platform.openai.Role;
 import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
+import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -61,5 +64,25 @@ public class OpenAIClientTest {
 		}).collect().asList().await().indefinitely();
 
 		System.out.println(indefinitely.size());
+	}
+
+	@Test
+	public void testChatCompletion() {
+
+		var req = new ChatCompletionRequest();
+		req.setModel("gpt-4-32k");
+		req.setMaxTokens(300);
+		req.setTemperature(0.9D);
+		req.setN(4);
+		req.setMessages(List.of(
+				new ChatMessage("I am the best musician in the world.", Role.SYSTEM, "toota", null),
+				new ChatMessage("What are the most complex jazz chord variations?", Role.USER, "toota", null),
+				new ChatMessage("Hmm let's ask the master", Role.ASSISTANT, "toota", null)
+		));
+
+		client.createChatCompletion(req).onItem().invoke(result -> {
+			Log.info(Json.encode(result));
+		}).await().indefinitely();
+
 	}
 }

@@ -12,6 +12,8 @@ import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.completion.CompletionResult;
+import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
+import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
 import org.slixes.platform.openai.model.Model;
 
 import java.util.Set;
@@ -35,6 +37,10 @@ public interface OpenAIClient {
 	@POST
 	@Path("/completions")
 	Uni<CompletionResult> createCompletion(CompletionRequest request);
+
+	@POST
+	@Path("/chat/completions")
+	Uni<ChatCompletionResult> createChatCompletion(ChatCompletionRequest request);
 
 	@POST
 	@Path("/completions")

@@ -22,6 +22,8 @@ public class ChatMessage extends Message {
 		this.functionCall = functionCall;
 	}
 
+
+
 	public Role getRole() {
 		return role;
 	}

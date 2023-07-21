@@ -33,7 +33,7 @@ public class CompletionChunkBodyReader implements MessageBodyReader<CompletionCh
 			if (json.equals("[DONE]")) {
 				entityStream.close();
 				var result = new CompletionChunk();
-				result.setId("[DONE]");
+				result.setId(json);
 				return result;
 			}
 			return Json.decodeValue(json, CompletionChunk.class);
