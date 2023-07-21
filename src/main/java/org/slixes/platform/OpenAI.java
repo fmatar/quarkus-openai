@@ -11,6 +11,7 @@ import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.completion.CompletionResult;
+import org.slixes.platform.openai.completion.chat.ChatCompletionChunk;
 import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
 import org.slixes.platform.openai.model.Model;
@@ -41,7 +42,13 @@ public class OpenAI {
 				.filter(chunk -> !chunk.getId().equals("[DONE]"));
 	}
 
+
 	Uni<ChatCompletionResult> createChatCompletion(ChatCompletionRequest request) {
 		return client.createChatCompletion(request);
+	}
+
+	Multi<ChatCompletionChunk> createStreamedChatCompletion(ChatCompletionRequest request) {
+		return client.createStreamedChatCompletion(request)
+				.filter(chunk -> !chunk.getId().equals("[DONE]"));
 	}
 };

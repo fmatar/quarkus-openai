@@ -12,6 +12,7 @@ import org.slixes.platform.openai.ChatMessage;
 import org.slixes.platform.openai.Role;
 import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
+import org.slixes.platform.openai.completion.chat.ChatCompletionChunk;
 import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
 
 import java.util.List;
@@ -83,6 +84,16 @@ public class OpenAIClientTest {
 		client.createChatCompletion(req).onItem().invoke(result -> {
 			Log.info(Json.encode(result));
 		}).await().indefinitely();
+
+		req.setStream(true);
+
+		Multi<ChatCompletionChunk> completionStage = client.createStreamedChatCompletion(req);
+
+		List<ChatCompletionChunk> indefinitely = completionStage.onItem().invoke(completionChunk -> {
+			var chunk = Json.decodeValue(completionChunk.toString(), ChatCompletionChunk.class);
+			Log.info(Json.encode(completionChunk));
+		}).collect().asList().await().indefinitely();
+
 
 	}
 }

@@ -12,6 +12,7 @@ import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.completion.CompletionResult;
+import org.slixes.platform.openai.completion.chat.ChatCompletionChunk;
 import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
 import org.slixes.platform.openai.model.Model;
@@ -47,6 +48,12 @@ public interface OpenAIClient {
 	@Produces(MediaType.SERVER_SENT_EVENTS)
 	@RestStreamElementType(MediaType.APPLICATION_JSON)
 	Multi<CompletionChunk> createStreamedCompletion(CompletionRequest request);
+
+	@POST
+	@Path("/chat/completions")
+	@Produces(MediaType.SERVER_SENT_EVENTS)
+	@RestStreamElementType(MediaType.APPLICATION_JSON)
+	Multi<ChatCompletionChunk> createStreamedChatCompletion(ChatCompletionRequest request);
 
 
 	default String lookupAuth() {
