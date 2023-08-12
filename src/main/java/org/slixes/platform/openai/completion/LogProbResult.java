@@ -9,7 +9,7 @@ import lombok.Data;
  * Log probabilities of different token options Returned if {@link CompletionRequest#logprobs} is
  * greater than zero
  *
- * <p>https://beta.openai.com/docs/api-reference/create-completion
+ * <p>https://platform.openai.com/docs/api-reference/completions/create</p>
  */
 @Data
 public class LogProbResult {

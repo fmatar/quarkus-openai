@@ -119,14 +119,11 @@ public class OpenAIClientTest {
 												.setProperties(properties)
 												.setRequired(Collections.singletonList("location"))
 												.build()
-								)
-								.build()
-				))
-				.build();
+								).build()
+				)).build();
 
 		client.createChatCompletion(req).onItem().invoke(result -> {
 			Log.info(Json.encode(result));
 		}).await().indefinitely();
-
 	}
 }
