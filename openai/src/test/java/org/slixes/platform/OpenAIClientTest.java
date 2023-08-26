@@ -10,17 +10,14 @@ import static org.wildfly.common.Assert.assertTrue;
 
 import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slixes.platform.openai.ChatMessage;
 import org.slixes.platform.openai.Role;
-import org.slixes.platform.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
@@ -91,41 +88,60 @@ class OpenAIClientTest {
 
   @Test
   void testChatCompletionWithFunction() {
-    var location = new HashMap<String, Object>();
-    location.put("type", "string");
-    location.put("description", "The city and state, e.g. San Francisco, CA");
-
-    var unitProp = new HashMap<String, Object>();
-    unitProp.put("type", "string");
-    unitProp.put("enum", Arrays.asList("celsius", "fahrenheit"));
-
-    var properties = new HashMap<String, Object>();
-    properties.put("location", location);
-    properties.put("unit", unitProp);
+    var properties = getStringObjectHashMap();
 
     var req = ChatCompletionRequest.builder()
-      .setModel("gpt-4-0613")
+      .setModel("gpt-3.5-turbo")
       .setMaxTokens(300)
-      .setTemperature(0.9D)
-      .setN(4)
+      .setTemperature(1.1)
       .setMessages(List.of(
-        new ChatMessage("What's the weather like in Seattle Washington?", Role.USER, "weather",
+        new ChatMessage(
+          "Tell me more about Paco de Lucia Where was he born?, give me his real first name and last name, and his date of birth",
+          Role.USER, null,
           null)
       ))
       .setFunctions(List.of(
         Function.builder()
-          .setName("weather")
-          .setDescription("Get the weather for a location")
+          .setName("get_artist_info")
+          .setDescription("Get the artist information")
           .setParameters(
             Parameters.builder()
               .setType("object")
               .setProperties(properties)
-              .setRequired(Collections.singletonList("location"))
+              .setRequired(List.of("first_name", "last_name", "date_of_birth", "place_of_birth"))
               .build()
           ).build()
       )).build();
 
+    Log.info(Json.encode(req));
+
     ChatCompletionResult result = client.createChatCompletion(req).await().indefinitely();
     assertThat(result.getChoices().size(), is(greaterThan(0)));
+
+  }
+
+  private static HashMap<String, Object> getStringObjectHashMap() {
+    var firstName = new HashMap<String, Object>();
+    firstName.put("type", "string");
+    firstName.put("description", "The first name of the artist");
+
+    var lastName = new HashMap<String, Object>();
+    lastName.put("type", "string");
+    lastName.put("description", "The first name of the artist");
+
+    var dateOfBirth = new HashMap<String, Object>();
+    dateOfBirth.put("type", "string");
+    dateOfBirth.put("description", "The date of birth of the artist");
+
+    var placeOfBirth = new HashMap<String, Object>();
+    placeOfBirth.put("type", "string");
+    placeOfBirth.put("description", "The place of birth of the artist, city, country");
+
+    var properties = new HashMap<String, Object>();
+    properties.put("first_name", firstName);
+    properties.put("last_name", placeOfBirth);
+    properties.put("date_of_birth", dateOfBirth);
+    properties.put("place_of_birth", placeOfBirth);
+    return properties;
   }
 }
