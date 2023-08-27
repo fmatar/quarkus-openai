@@ -1,21 +1,28 @@
 package org.slixes.platform.openai;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
 
-/**
- * The OpenAI token usage per request
- *
- * @param promptTokens     The number of prompt tokens used.
- * @param completionTokens The number of completion tokens used.
- * @param totalTokens      The number of total tokens used
- */
+@Value
+@Builder
+@AllArgsConstructor
+@JsonDeserialize(builder = Usage.UsageBuilder.class)
 public class Usage {
-	@JsonProperty("prompt_tokens")
-	long promptTokens;
-	@JsonProperty("completion_tokens")
-	long completionTokens;
-	@JsonProperty("total_tokens")
-	long totalTokens;
+
+  @JsonProperty("prompt_tokens")
+  long promptTokens;
+  @JsonProperty("completion_tokens")
+  long completionTokens;
+  @JsonProperty("total_tokens")
+  long totalTokens;
+
+
+  @JsonPOJOBuilder(withPrefix = "")
+  public static class UsageBuilder {
+    // Lombok will add builder methods here
+  }
 }
