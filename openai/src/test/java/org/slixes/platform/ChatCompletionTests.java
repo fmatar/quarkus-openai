@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.nullValue;
 import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
@@ -109,8 +110,16 @@ class ChatCompletionTests {
               .build()
           ).build()
       )).build();
+
+    Log.info(Json.encode(req));
     ChatCompletionResult result = client.createChatCompletion(req).await().indefinitely();
+    Log.info(Json.encode(result));
     assertThat(result.getChoices().size(), is(greaterThan(0)));
+    assertThat(result.getChoices().get(0).getFinishReason(), equalTo("function_call"));
+    assertThat(result.getChoices().get(0).getMessage().getFunctionCall().getArguments(), notNullValue());
+
+    var jsonObj = new JsonObject(result.getChoices().get(0).getMessage().getFunctionCall().getArguments());
+    assertThat(jsonObj.getString("place_of_birth"), equalTo("Algeciras, Spain"));
 
   }
 

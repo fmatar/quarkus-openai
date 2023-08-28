@@ -7,7 +7,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.quarkus.logging.Log;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ class SerializationTest {
         "role": "user",
         "content": "content",
         "name": "name",
-        "functionCall": {
+        "function_call": {
           "name": "name",
           "arguments": "args"
         }
@@ -211,5 +213,45 @@ class SerializationTest {
     assertThat(decoded, equalTo(p));
     assertThat(decoded.toString(), notNullValue());
     assertThat(decoded.hashCode(), lessThanOrEqualTo(0));
+  }
+
+
+  @Test
+  void testCompletionResultWithFunctionCall() {
+    var json = """
+      {
+          "id": "chatcmpl-7sN98iBV0rOBFU9xli6fdJiPatCt9",
+          "object": "chat.completion",
+          "created": 1693193042,
+          "model": "gpt-3.5-turbo-0613",
+          "choices": [
+              {
+                  "index": 0,
+                  "message": {
+                      "role": "assistant",
+                      "content": null,
+                      "function_call": {
+                          "name": "get_artist_info",
+                          "arguments": "{\\n  \\"place_of_birth\\": \\"Algeciras, Spain\\",\\n  \\"date_of_birth\\": \\"December 21, 1947\\",\\n  \\"last_name\\": \\"de Lucia\\",\\n  \\"first_name\\": \\"Francisco\\"\\n}"
+                      }
+                  },
+                  "finish_reason": "function_call"
+              }
+          ],
+          "usage": {
+              "prompt_tokens": 134,
+              "completion_tokens": 56,
+              "total_tokens": 190
+          }
+      }
+      """;
+
+    ChatCompletionResult chatCompletionResult = Json.decodeValue(json, ChatCompletionResult.class);
+
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getName(), equalTo("get_artist_info"));
+    var jsonObj = new JsonObject(chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getArguments());
+    assertThat(jsonObj.getString("place_of_birth"), equalTo("Algeciras, Spain"));
+    Log.info(jsonObj);
+    Log.info(Json.encode(chatCompletionResult));
   }
 }
