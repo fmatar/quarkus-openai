@@ -27,13 +27,13 @@ public class GreetingResource {
   public Uni<CompletionResult> completion() {
     var req = new CompletionRequest();
     req.setModel("text-davinci-003");
-    req.setPrompt("Give me the name of a song by Iron Maiden that starts with I am a man who walks alone. Do not prefix or include any special characters.");
+    req.setPrompt(
+      "Give me the name of a song by Iron Maiden that starts with I am a man who walks alone. Do not prefix or include any special characters.");
     req.setTemperature(1.9);
     req.setMaxTokens(100);
     req.setTopP(1D);
     req.setFrequencyPenalty(0D);
     req.setPresencePenalty(0D);
-    Log.info(Json.encode(req));
     return client.createCompletion(req);
   }
 

@@ -2,19 +2,27 @@ package org.slixes.platform;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import io.quarkus.logging.Log;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.slixes.platform.openai.ChatMessage;
-import org.slixes.platform.openai.Role;
-import org.slixes.platform.openai.Usage;
+import org.slixes.platform.openai.common.Role;
+import org.slixes.platform.openai.common.Usage;
 import org.slixes.platform.openai.completion.chat.ChatCompletionChoice;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
+import org.slixes.platform.openai.completion.chat.ChatMessage;
+import org.slixes.platform.openai.completion.chat.Function;
 import org.slixes.platform.openai.completion.chat.FunctionCall;
+import org.slixes.platform.openai.model.Model;
+import org.slixes.platform.openai.model.Permission;
 
 class SerializationTest {
 
@@ -25,7 +33,7 @@ class SerializationTest {
         "role": "user",
         "content": "content",
         "name": "name",
-        "functionCall": {
+        "function_call": {
           "name": "name",
           "arguments": "args"
         }
@@ -52,7 +60,8 @@ class SerializationTest {
           {
             "index": 0,
             "message": {
-              "role": "assistant"
+              "role": "assistant",
+              "content" : "blah"
             },
             "finish_reason": "length"
           }
@@ -71,10 +80,15 @@ class SerializationTest {
     assertThat(chatCompletionResult.getModel(), notNullValue(String.class));
     assertThat(chatCompletionResult.getUsage(), notNullValue(Usage.class));
 
+    assertThat(chatCompletionResult.getChoices().size(), equalTo(1));
+    assertThat(chatCompletionResult.getChoices().get(0).getIndex(), equalTo(0));
+    assertThat(chatCompletionResult.getChoices().get(0).getFinishReason(), equalTo("length"));
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getRole(), equalTo(Role.ASSISTANT));
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getContent(), equalTo("blah"));
     var retrievedUsage = chatCompletionResult.getUsage();
-    assertThat(retrievedUsage.getCompletionTokens(), equalTo(300L));
-    assertThat(retrievedUsage.getPromptTokens(), equalTo(48L));
-    assertThat(retrievedUsage.getTotalTokens(), equalTo(348L));
+    assertThat(retrievedUsage.completionTokens(), equalTo(300L));
+    assertThat(retrievedUsage.promptTokens(), equalTo(48L));
+    assertThat(retrievedUsage.totalTokens(), equalTo(348L));
 
     var usageJson = """
       {
@@ -85,7 +99,7 @@ class SerializationTest {
       """;
 
     var decodedUsage = Json.decodeValue(usageJson, Usage.class);
-    var usage = Usage.builder().promptTokens(48).completionTokens(300).totalTokens(348).build();
+    var usage = new Usage(48, 300, 348);
 
     assertThat(usage, equalTo(retrievedUsage));
     assertThat(usage, equalTo(decodedUsage));
@@ -93,17 +107,16 @@ class SerializationTest {
 
   @Test
   void testChatCompletionResultSerialization() {
-    var result =  ChatCompletionResult.builder().id("aaa").object("chat.completion").created(123L).model("gpt-4-0613").build();
+    var result = ChatCompletionResult.builder().id("aaa").object("chat.completion").created(123L).model("gpt-4-0613")
+      .build();
 
-    var usage = Usage.builder().promptTokens(48).completionTokens(300).totalTokens(348).build();
+    var usage = new Usage(48, 300, 348);
 
     result.setUsage(usage);
 
     List<ChatCompletionChoice> choices = new ArrayList<>();
 
-    var choice = ChatCompletionChoice.builder()
-      .finishReason("stop")
-      .build();
+    var choice = ChatCompletionChoice.builder().finishReason("stop").build();
 
     choices.add(choice);
 
@@ -111,25 +124,178 @@ class SerializationTest {
     var decoded = Json.decodeValue(encoded, ChatCompletionResult.class);
 
     assertThat(decoded, equalTo(result));
-
-    Log.info("encoded: " + encoded);
   }
 
 
   @Test
   void testCompletionChoiceSerialization() {
-    var completionChoice = ChatCompletionChoice.builder()
-      .index(0)
-      .finishReason("stop")
-      .message(ChatMessage.builder().content("test").role(Role.SYSTEM).build())
-      .build();
+    var json = """
+            {
+              "index": 0,
+              "delta": {
+                  "role": "assistant",
+                  "content": "The"
+              },
+              "finish_reason": null
+            }
+      """;
 
-    var encoded = Json.encode(completionChoice);
-
-    var decoded = Json.decodeValue(encoded, ChatCompletionChoice.class);
-
-    assertThat(decoded, equalTo(completionChoice));
-    Log.info(encoded);
+    ChatCompletionChoice chatCompletionChoice = Json.decodeValue(json, ChatCompletionChoice.class);
+    assertThat(chatCompletionChoice.getIndex(), equalTo(0));
+    assertThat(chatCompletionChoice.getFinishReason(), nullValue());
+    assertThat(chatCompletionChoice.getMessage().getContent(), equalTo("The"));
+    assertThat(chatCompletionChoice.getMessage().getRole(), equalTo(Role.ASSISTANT));
   }
 
+
+  @Test
+  void testUsageObject() {
+    var usage = new Usage(48, 300, 348);
+    var decoded = Json.encode(usage);
+    var encoded = Json.decodeValue(decoded, Usage.class);
+    assertThat(encoded, equalTo(usage));
+  }
+
+  @Test
+  void testRoleObject() {
+    var role = Role.USER;
+    var decoded = Json.encode(role);
+    var encoded = Json.decodeValue(decoded, Role.class);
+    assertThat(encoded, equalTo(role));
+
+    Role user = Role.forValue("user");
+    assertThat(user, equalTo(Role.USER));
+
+    assertThrows(IllegalArgumentException.class, () -> {
+      Role.forValue("blah");
+    });
+  }
+
+  @Test
+  void testModelObject() {
+    var model = Model.builder().id("id").object("object").build();
+    var decoded = Json.encode(model);
+    var encoded = Json.decodeValue(decoded, Model.class);
+    assertThat(encoded, equalTo(model));
+  }
+
+  @Test
+  void testPermissionObject() {
+    var json = """
+       {
+         "id": "modelperm-P7lby9Sdb6rLW8qqie46YnE0",
+         "object": "model_permission",
+         "created": 1693000468,
+         "allow_create_engine": false,
+         "allow_sampling": false,
+         "allow_logprobs": false,
+         "allow_search_indices": false,
+         "allow_view": false,
+         "allow_fine_tuning": false,
+         "organization": "*",
+         "group": null,
+         "is_blocking": false
+       }
+      """;
+
+    var permission = Json.decodeValue(json, Permission.class);
+    assertThat(permission.getId(), equalTo("modelperm-P7lby9Sdb6rLW8qqie46YnE0"));
+
+    Permission p = Permission.builder().id("modelperm-P7lby9Sdb6rLW8qqie46YnE0").object("model_permission")
+      .created(1693000468L).ownedBy("openai").allowCreateEngine(true).allowSampling(false).build();
+    var encoded = Json.encode(p);
+    var decoded = Json.decodeValue(encoded, Permission.class);
+
+    assertThat(decoded, equalTo(p));
+    assertThat(decoded.toString(), notNullValue());
+    assertThat(decoded.hashCode(), lessThanOrEqualTo(0));
+  }
+
+
+  @Test
+  void testCompletionResultWithFunctionCall() {
+    var json = """
+      {
+          "id": "chatcmpl-7sN98iBV0rOBFU9xli6fdJiPatCt9",
+          "object": "chat.completion",
+          "created": 1693193042,
+          "model": "gpt-3.5-turbo-0613",
+          "choices": [
+              {
+                  "index": 0,
+                  "message": {
+                      "role": "assistant",
+                      "content": null,
+                      "function_call": {
+                          "name": "get_artist_info",
+                          "arguments": "{\\n  \\"place_of_birth\\": \\"Algeciras, Spain\\",\\n  \\"date_of_birth\\": \\"December 21, 1947\\",\\n  \\"last_name\\": \\"de Lucia\\",\\n  \\"first_name\\": \\"Francisco\\"\\n}"
+                      }
+                  },
+                  "finish_reason": "function_call"
+              }
+          ],
+          "usage": {
+              "prompt_tokens": 134,
+              "completion_tokens": 56,
+              "total_tokens": 190
+          }
+      }
+      """;
+
+    ChatCompletionResult chatCompletionResult = Json.decodeValue(json, ChatCompletionResult.class);
+
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getName(),
+      equalTo("get_artist_info"));
+    var jsonObj = new JsonObject(
+      chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getArguments());
+    assertThat(jsonObj.getString("place_of_birth"), equalTo("Algeciras, Spain"));
+  }
+
+  @Test
+  void functionObjectTest() {
+    var json = """
+      {
+        "name": "get_artist_info",
+        "description": "Get the artist information",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "place_of_birth": {
+                "description": "The place of birth of the artist, city, country",
+                "type": "string"
+            },
+            "date_of_birth": {
+                "description": "The date of birth of the artist",
+                "type": "string"
+            },
+            "last_name": {
+                "description": "The place of birth of the artist, city, country",
+                "type": "string"
+            },
+            "first_name": {
+                "description": "The first name of the artist",
+                "type": "string"
+            }
+          },
+          "required": [
+            "first_name",
+            "last_name",
+            "date_of_birth",
+            "place_of_birth"
+          ]
+        }
+      }
+      """;
+
+    var func = Json.decodeValue(json, Function.class);
+    assertThat(func.toString(), notNullValue(String.class));
+    assertThat(func.hashCode(), lessThanOrEqualTo(0));
+    assertThat(func.getName(), equalTo("get_artist_info"));
+    assertThat(func.getDescription(), equalTo("Get the artist information"));
+    assertThat(func.getParameters().getType(), equalTo("object"));
+
+    var properties = func.getParameters().getProperties();
+    assertThat(properties.size(), equalTo(4));
+    assertThat(func.getParameters().getRequired().size(), equalTo(4));
+  }
 }
