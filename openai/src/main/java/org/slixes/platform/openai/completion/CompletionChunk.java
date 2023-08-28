@@ -8,7 +8,7 @@ import lombok.Data;
 /**
  * Object containing a response chunk from the completions streaming api.
  *
- * <p>https://beta.openai.com/docs/api-reference/completions/create
+ * <p><a href="https://platform.openai.com/docs/api-reference/completions/create">...</a>
  */
 @Data
 public class CompletionChunk {
@@ -16,7 +16,7 @@ public class CompletionChunk {
   String id;
 
   /**
-   * https://beta.openai.com/docs/api-reference/create-completion The type of object returned,
+   * <a href="https://platform.openai.com/docs/api-reference/create-completion">...</a> The type of object returned,
    * should be "text_completion"
    */
   String object;
@@ -30,7 +30,4 @@ public class CompletionChunk {
   /** A list of generated completions. */
   List<CompletionChoice> choices;
 
-  public String toString() {
-    return Json.encode(this);
-  }
 }
