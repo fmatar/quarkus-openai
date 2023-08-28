@@ -5,22 +5,24 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import io.quarkus.logging.Log;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.slixes.platform.openai.common.Role;
+import org.slixes.platform.openai.common.Usage;
 import org.slixes.platform.openai.completion.chat.ChatCompletionChoice;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
 import org.slixes.platform.openai.completion.chat.ChatMessage;
+import org.slixes.platform.openai.completion.chat.Function;
 import org.slixes.platform.openai.completion.chat.FunctionCall;
 import org.slixes.platform.openai.model.Model;
 import org.slixes.platform.openai.model.Permission;
-import org.slixes.platform.openai.common.Role;
-import org.slixes.platform.openai.common.Usage;
 
 class SerializationTest {
 
@@ -199,14 +201,8 @@ class SerializationTest {
     var permission = Json.decodeValue(json, Permission.class);
     assertThat(permission.getId(), equalTo("modelperm-P7lby9Sdb6rLW8qqie46YnE0"));
 
-    Permission p = Permission.builder()
-      .id("modelperm-P7lby9Sdb6rLW8qqie46YnE0")
-      .object("model_permission")
-      .created(1693000468L)
-      .ownedBy("openai")
-      .allowCreateEngine(true)
-      .allowSampling(false)
-      .build();
+    Permission p = Permission.builder().id("modelperm-P7lby9Sdb6rLW8qqie46YnE0").object("model_permission")
+      .created(1693000468L).ownedBy("openai").allowCreateEngine(true).allowSampling(false).build();
     var encoded = Json.encode(p);
     var decoded = Json.decodeValue(encoded, Permission.class);
 
@@ -248,10 +244,58 @@ class SerializationTest {
 
     ChatCompletionResult chatCompletionResult = Json.decodeValue(json, ChatCompletionResult.class);
 
-    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getName(), equalTo("get_artist_info"));
-    var jsonObj = new JsonObject(chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getArguments());
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getName(),
+      equalTo("get_artist_info"));
+    var jsonObj = new JsonObject(
+      chatCompletionResult.getChoices().get(0).getMessage().getFunctionCall().getArguments());
     assertThat(jsonObj.getString("place_of_birth"), equalTo("Algeciras, Spain"));
-    Log.info(jsonObj);
-    Log.info(Json.encode(chatCompletionResult));
+  }
+
+  @Test
+  void functionObjectTest() {
+    var json = """
+      {
+        "name": "get_artist_info",
+        "description": "Get the artist information",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "place_of_birth": {
+                "description": "The place of birth of the artist, city, country",
+                "type": "string"
+            },
+            "date_of_birth": {
+                "description": "The date of birth of the artist",
+                "type": "string"
+            },
+            "last_name": {
+                "description": "The place of birth of the artist, city, country",
+                "type": "string"
+            },
+            "first_name": {
+                "description": "The first name of the artist",
+                "type": "string"
+            }
+          },
+          "required": [
+            "first_name",
+            "last_name",
+            "date_of_birth",
+            "place_of_birth"
+          ]
+        }
+      }
+      """;
+
+    var func = Json.decodeValue(json, Function.class);
+    assertThat(func.toString(), notNullValue(String.class));
+    assertThat(func.hashCode(), lessThanOrEqualTo(0));
+    assertThat(func.getName(), equalTo("get_artist_info"));
+    assertThat(func.getDescription(), equalTo("Get the artist information"));
+    assertThat(func.getParameters().getType(), equalTo("object"));
+
+    var properties = func.getParameters().getProperties();
+    assertThat(properties.size(), equalTo(4));
+    assertThat(func.getParameters().getRequired().size(), equalTo(4));
   }
 }
