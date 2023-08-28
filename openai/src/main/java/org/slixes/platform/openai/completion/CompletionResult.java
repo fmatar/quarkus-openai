@@ -2,7 +2,7 @@ package org.slixes.platform.openai.completion;
 
 import java.util.List;
 import lombok.Data;
-import org.slixes.platform.openai.Usage;
+import org.slixes.platform.openai.common.Usage;
 
 /**
  * An object containing a response from the completion api

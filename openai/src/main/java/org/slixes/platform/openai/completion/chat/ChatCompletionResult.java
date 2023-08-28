@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.slixes.platform.openai.Usage;
+import org.slixes.platform.openai.common.Usage;
 
 /**
  * Object containing a response from the chat completions api.

@@ -1,4 +1,4 @@
-package org.slixes.platform.openai;
+package org.slixes.platform.openai.completion;
 
 import io.vertx.core.json.Json;
 import jakarta.ws.rs.Consumes;

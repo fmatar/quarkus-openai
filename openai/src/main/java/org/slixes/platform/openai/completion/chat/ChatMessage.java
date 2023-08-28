@@ -1,4 +1,4 @@
-package org.slixes.platform.openai;
+package org.slixes.platform.openai.completion.chat;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slixes.platform.openai.completion.chat.FunctionCall;
+import org.slixes.platform.openai.common.Role;
 
 
 @Data

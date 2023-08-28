@@ -1,4 +1,4 @@
-package org.slixes.platform.openai;
+package org.slixes.platform.openai.common;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;

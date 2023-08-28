@@ -6,23 +6,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.wildfly.common.Assert.assertTrue;
 
 import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.slixes.platform.openai.ChatMessage;
-import org.slixes.platform.openai.Role;
 import org.slixes.platform.openai.completion.CompletionRequest;
-import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
-import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
-import org.slixes.platform.openai.completion.chat.Function;
-import org.slixes.platform.openai.completion.chat.Parameters;
 
 @QuarkusTest
 class OpenAIClientTest {

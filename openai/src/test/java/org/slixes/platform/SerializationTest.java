@@ -2,20 +2,23 @@ package org.slixes.platform;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import io.quarkus.logging.Log;
 import io.vertx.core.json.Json;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.slixes.platform.openai.ChatMessage;
-import org.slixes.platform.openai.Role;
-import org.slixes.platform.openai.Usage;
 import org.slixes.platform.openai.completion.chat.ChatCompletionChoice;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
+import org.slixes.platform.openai.completion.chat.ChatMessage;
 import org.slixes.platform.openai.completion.chat.FunctionCall;
+import org.slixes.platform.openai.model.Model;
+import org.slixes.platform.openai.model.Permission;
+import org.slixes.platform.openai.common.Role;
+import org.slixes.platform.openai.common.Usage;
 
 class SerializationTest {
 
@@ -79,9 +82,9 @@ class SerializationTest {
     assertThat(chatCompletionResult.getChoices().get(0).getMessage().getRole(), equalTo(Role.ASSISTANT));
     assertThat(chatCompletionResult.getChoices().get(0).getMessage().getContent(), equalTo("blah"));
     var retrievedUsage = chatCompletionResult.getUsage();
-    assertThat(retrievedUsage.getCompletionTokens(), equalTo(300L));
-    assertThat(retrievedUsage.getPromptTokens(), equalTo(48L));
-    assertThat(retrievedUsage.getTotalTokens(), equalTo(348L));
+    assertThat(retrievedUsage.completionTokens(), equalTo(300L));
+    assertThat(retrievedUsage.promptTokens(), equalTo(48L));
+    assertThat(retrievedUsage.totalTokens(), equalTo(348L));
 
     var usageJson = """
       {
@@ -92,7 +95,7 @@ class SerializationTest {
       """;
 
     var decodedUsage = Json.decodeValue(usageJson, Usage.class);
-    var usage = Usage.builder().promptTokens(48).completionTokens(300).totalTokens(348).build();
+    var usage = new Usage(48, 300, 348);
 
     assertThat(usage, equalTo(retrievedUsage));
     assertThat(usage, equalTo(decodedUsage));
@@ -103,15 +106,13 @@ class SerializationTest {
     var result = ChatCompletionResult.builder().id("aaa").object("chat.completion").created(123L).model("gpt-4-0613")
       .build();
 
-    var usage = Usage.builder().promptTokens(48).completionTokens(300).totalTokens(348).build();
+    var usage = new Usage(48, 300, 348);
 
     result.setUsage(usage);
 
     List<ChatCompletionChoice> choices = new ArrayList<>();
 
-    var choice = ChatCompletionChoice.builder()
-      .finishReason("stop")
-      .build();
+    var choice = ChatCompletionChoice.builder().finishReason("stop").build();
 
     choices.add(choice);
 
@@ -119,8 +120,6 @@ class SerializationTest {
     var decoded = Json.decodeValue(encoded, ChatCompletionResult.class);
 
     assertThat(decoded, equalTo(result));
-
-    Log.info("encoded: " + encoded);
   }
 
 
@@ -142,7 +141,75 @@ class SerializationTest {
     assertThat(chatCompletionChoice.getFinishReason(), nullValue());
     assertThat(chatCompletionChoice.getMessage().getContent(), equalTo("The"));
     assertThat(chatCompletionChoice.getMessage().getRole(), equalTo(Role.ASSISTANT));
+  }
 
-    Log.info(Json.encode(chatCompletionChoice));
+
+  @Test
+  void testUsageObject() {
+    var usage = new Usage(48, 300, 348);
+    var decoded = Json.encode(usage);
+    var encoded = Json.decodeValue(decoded, Usage.class);
+    assertThat(encoded, equalTo(usage));
+  }
+
+  @Test
+  void testRoleObject() {
+    var role = Role.USER;
+    var decoded = Json.encode(role);
+    var encoded = Json.decodeValue(decoded, Role.class);
+    assertThat(encoded, equalTo(role));
+
+    Role user = Role.forValue("user");
+    assertThat(user, equalTo(Role.USER));
+
+    assertThrows(IllegalArgumentException.class, () -> {
+      Role.forValue("blah");
+    });
+  }
+
+  @Test
+  void testModelObject() {
+    var model = Model.builder().id("id").object("object").build();
+    var decoded = Json.encode(model);
+    var encoded = Json.decodeValue(decoded, Model.class);
+    assertThat(encoded, equalTo(model));
+  }
+
+  @Test
+  void testPermissionObject() {
+    var json = """
+       {
+         "id": "modelperm-P7lby9Sdb6rLW8qqie46YnE0",
+         "object": "model_permission",
+         "created": 1693000468,
+         "allow_create_engine": false,
+         "allow_sampling": false,
+         "allow_logprobs": false,
+         "allow_search_indices": false,
+         "allow_view": false,
+         "allow_fine_tuning": false,
+         "organization": "*",
+         "group": null,
+         "is_blocking": false
+       }
+      """;
+
+    var permission = Json.decodeValue(json, Permission.class);
+    assertThat(permission.getId(), equalTo("modelperm-P7lby9Sdb6rLW8qqie46YnE0"));
+
+    Permission p = Permission.builder()
+      .id("modelperm-P7lby9Sdb6rLW8qqie46YnE0")
+      .object("model_permission")
+      .created(1693000468L)
+      .ownedBy("openai")
+      .allowCreateEngine(true)
+      .allowSampling(false)
+      .build();
+    var encoded = Json.encode(p);
+    var decoded = Json.decodeValue(encoded, Permission.class);
+
+    assertThat(decoded, equalTo(p));
+    assertThat(decoded.toString(), notNullValue());
+    assertThat(decoded.hashCode(), lessThanOrEqualTo(0));
   }
 }

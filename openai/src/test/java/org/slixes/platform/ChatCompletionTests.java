@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
-import org.slixes.platform.openai.ChatMessage;
-import org.slixes.platform.openai.Role;
+import org.slixes.platform.openai.completion.chat.ChatMessage;
+import org.slixes.platform.openai.common.Role;
 import org.slixes.platform.openai.completion.chat.ChatCompletionRequest;
 import org.slixes.platform.openai.completion.chat.ChatCompletionResult;
 import org.slixes.platform.openai.completion.chat.Function;
@@ -31,7 +31,7 @@ class ChatCompletionTests {
   @Test
   void testChatCompletion() {
     var req = new ChatCompletionRequest();
-    req.setModel("gpt-4");
+    req.setModel("gpt-3.5-turbo");
     req.setMaxTokens(500);
     req.setTemperature(1.1);
     req.setMessages(List.of(
@@ -50,7 +50,7 @@ class ChatCompletionTests {
   @Test
   void testChatCompletionWithStreaming() {
     var req = new ChatCompletionRequest();
-    req.setModel("gpt-4-0613");
+    req.setModel("gpt-3.5-turbo");
     req.setMaxTokens(500);
     req.setTemperature(1.1);
     req.setMessages(List.of(
@@ -65,7 +65,7 @@ class ChatCompletionTests {
     AtomicInteger counter = new AtomicInteger(0);
     chunks.forEach(c -> {
       var message = c.getChoices().get(0).getMessage();
-      assertThat(c.getModel(), equalTo("gpt-4-0613"));
+      assertThat(c.getModel(), equalTo("gpt-3.5-turbo-0613"));
       assertThat(c.getObject(), equalTo("chat.completion.chunk"));
       assertThat(c.getCreated(), is(greaterThan(0L)));
 
