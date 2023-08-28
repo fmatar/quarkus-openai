@@ -3,6 +3,7 @@ package org.slixes.platform;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import io.quarkus.logging.Log;
 import io.vertx.core.json.Json;
@@ -52,7 +53,8 @@ class SerializationTest {
           {
             "index": 0,
             "message": {
-              "role": "assistant"
+              "role": "assistant",
+              "content" : "blah"
             },
             "finish_reason": "length"
           }
@@ -71,6 +73,11 @@ class SerializationTest {
     assertThat(chatCompletionResult.getModel(), notNullValue(String.class));
     assertThat(chatCompletionResult.getUsage(), notNullValue(Usage.class));
 
+    assertThat(chatCompletionResult.getChoices().size(), equalTo(1));
+    assertThat(chatCompletionResult.getChoices().get(0).getIndex(), equalTo(0));
+    assertThat(chatCompletionResult.getChoices().get(0).getFinishReason(), equalTo("length"));
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getRole(), equalTo(Role.ASSISTANT));
+    assertThat(chatCompletionResult.getChoices().get(0).getMessage().getContent(), equalTo("blah"));
     var retrievedUsage = chatCompletionResult.getUsage();
     assertThat(retrievedUsage.getCompletionTokens(), equalTo(300L));
     assertThat(retrievedUsage.getPromptTokens(), equalTo(48L));
@@ -93,7 +100,8 @@ class SerializationTest {
 
   @Test
   void testChatCompletionResultSerialization() {
-    var result =  ChatCompletionResult.builder().id("aaa").object("chat.completion").created(123L).model("gpt-4-0613").build();
+    var result = ChatCompletionResult.builder().id("aaa").object("chat.completion").created(123L).model("gpt-4-0613")
+      .build();
 
     var usage = Usage.builder().promptTokens(48).completionTokens(300).totalTokens(348).build();
 
@@ -118,18 +126,23 @@ class SerializationTest {
 
   @Test
   void testCompletionChoiceSerialization() {
-    var completionChoice = ChatCompletionChoice.builder()
-      .index(0)
-      .finishReason("stop")
-      .message(ChatMessage.builder().content("test").role(Role.SYSTEM).build())
-      .build();
+    var json = """
+            {
+              "index": 0,
+              "delta": {
+                  "role": "assistant",
+                  "content": "The"
+              },
+              "finish_reason": null
+            }
+      """;
 
-    var encoded = Json.encode(completionChoice);
+    ChatCompletionChoice chatCompletionChoice = Json.decodeValue(json, ChatCompletionChoice.class);
+    assertThat(chatCompletionChoice.getIndex(), equalTo(0));
+    assertThat(chatCompletionChoice.getFinishReason(), nullValue());
+    assertThat(chatCompletionChoice.getMessage().getContent(), equalTo("The"));
+    assertThat(chatCompletionChoice.getMessage().getRole(), equalTo(Role.ASSISTANT));
 
-    var decoded = Json.decodeValue(encoded, ChatCompletionChoice.class);
-
-    assertThat(decoded, equalTo(completionChoice));
-    Log.info(encoded);
+    Log.info(Json.encode(chatCompletionChoice));
   }
-
 }

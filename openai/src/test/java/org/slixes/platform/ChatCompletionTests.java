@@ -2,7 +2,10 @@ package org.slixes.platform;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
@@ -10,6 +13,7 @@ import io.vertx.core.json.Json;
 import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.slixes.platform.openai.ChatMessage;
 import org.slixes.platform.openai.Role;
@@ -24,29 +28,60 @@ class ChatCompletionTests {
   @Inject
   OpenAI client;
 
-//  @Test
-//  void testChatCompletion() {
-//    var req = new ChatCompletionRequest();
-//    req.setModel("gpt-4-0613");
-//    req.setMaxTokens(300);
-//    req.setTemperature(0.9D);
-//    req.setMessages(List.of(
-//      ChatMessage.builder().content("You are the best musician in the world.").role(Role.SYSTEM).build(),
-//      ChatMessage.builder().content("What are the most complex jazz chord variations?").role(Role.SYSTEM).build(),
-//      client.createChatCompletion(req).onItem().invoke(result -> {
-//        Log.info(Json.encode(result));
-//        assertThat(result.getChoices().size(), equalTo(1));
-//        var chatCompletionChoice = result.getChoices().get(0);
-//        assertThat(chatCompletionChoice.getMessage().getContent(), notNullValue());
-//        assertThat(chatCompletionChoice.getMessage().getRole(), equalTo("assistant"));
-//      }).await().indefinitely();
-//    /* Let's test the same execution using the streaming approach */
-//    req.setStream(true);
-//    var chunks = client.createStreamedChatCompletion(req).collect().asList().await().indefinitely();
-//    // Check if all elements have the same ID
-//    var expectedId = chunks.get(0).getId();
-//    assertTrue(chunks.stream().allMatch(element -> element.getId().equals(expectedId)));
-//  }
+  @Test
+  void testChatCompletion() {
+    var req = new ChatCompletionRequest();
+    req.setModel("gpt-4");
+    req.setMaxTokens(500);
+    req.setTemperature(1.1);
+    req.setMessages(List.of(
+      ChatMessage.builder().content("You are the best musician in the world.").role(Role.SYSTEM).build(),
+      ChatMessage.builder().content("What are the most complex jazz chord variations?").role(Role.SYSTEM).build()
+    ));
+    client.createChatCompletion(req).onItem().invoke(result -> {
+      Log.info(Json.encode(result));
+      assertThat(result.getChoices().size(), equalTo(1));
+      var chatCompletionChoice = result.getChoices().get(0);
+      assertThat(chatCompletionChoice.getMessage().getContent(), notNullValue());
+      assertThat(chatCompletionChoice.getMessage().getRole(), equalTo(Role.ASSISTANT));
+    }).await().indefinitely();
+  }
+
+  @Test
+  void testChatCompletionWithStreaming() {
+    var req = new ChatCompletionRequest();
+    req.setModel("gpt-4-0613");
+    req.setMaxTokens(500);
+    req.setTemperature(1.1);
+    req.setMessages(List.of(
+      ChatMessage.builder()
+        .content(
+          "You are the best musician in the world. give me a list of coma separated values of the best 3 flamenco players in the world")
+        .role(Role.SYSTEM).build()
+    ));
+    req.setStream(true);
+
+    var chunks = client.createStreamedChatCompletion(req).collect().asList().await().indefinitely();
+    AtomicInteger counter = new AtomicInteger(0);
+    chunks.forEach(c -> {
+      var message = c.getChoices().get(0).getMessage();
+      assertThat(c.getModel(), equalTo("gpt-4-0613"));
+      assertThat(c.getObject(), equalTo("chat.completion.chunk"));
+      assertThat(c.getCreated(), is(greaterThan(0L)));
+
+      if (counter.get() == 0) {
+        assertThat(message.getRole(), equalTo(Role.ASSISTANT));
+      } else if (counter.get() == chunks.size() - 1) {
+        assertThat(message.getContent(), nullValue());
+        assertThat(message.getName(), nullValue());
+        assertThat(message.getFunctionCall(), nullValue());
+      } else {
+        assertThat(message.getRole(), nullValue());
+        assertThat(message.getContent(), notNullValue());
+      }
+      counter.getAndIncrement();
+    });
+  }
 
 
   @Test
