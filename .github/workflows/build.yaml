@@ -1,0 +1,61 @@
+name: Build
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Setup Maven 3.9.4
+        uses: stCarolas/setup-maven@v4.3
+        with:
+          maven-version: 3.9.4
+
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.0'
+          java-version: '17'
+          components: 'native-image'
+
+      - name: Build with Maven
+        run: mvn package -Pnative
+
+      - name: Compile Native Image
+        run: native-image --no-server -cp target/myapp-1.0.0-SNAPSHOT-runner.jar
+
+      - name: Upload Native Image
+        uses: actions/upload-artifact@v1
+        with:
+          name: myapp-native
+          path: myapp
+
+      - name: Run Tests
+        run: mvn test
+
+  deploy:
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Download Native Image
+        uses: actions/download-artifact@v1
+        with:
+          name: myapp-native
+
+      - name: Deploy to Production
+        run: ./myapp
+        env:
+          HOST: ${{ secrets.PRODUCTION_HOST }}
+          PORT: ${{ secrets.PRODUCTION_PORT }}
