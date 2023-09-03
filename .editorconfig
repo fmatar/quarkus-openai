@@ -5,3 +5,6 @@ tab_width = 2
 indent_style = space
 max_line_length = 120
 trim_trailing_whitespace = true
+
+[*.xml]
+tab_width = 2
