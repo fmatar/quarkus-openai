@@ -9,7 +9,6 @@ Quarkus-based application and supports native compilation using GraalVM.
 ![Build Status]
 (https://github.com/fmatar/quarkus-openai/actions/workflows/build.yml/badge.svg)
 
-
 ## Features
 
 - Model Information: Fetch details about OpenAI models.
