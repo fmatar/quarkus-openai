@@ -6,7 +6,7 @@ This OpenAI driver is built using Quarkus, a full-stack, Kubernetes-native Java 
 easy-to-use API endpoints for OpenAI's Completion and Chat Completion services. It allows seamless integration into any
 Quarkus-based application and supports native compilation using GraalVM.
 
-[Build Status] (https://github.com/fmatar/quarkus-openai/actions/workflows/build.yml/badge.svg)
+[Build Status](https://github.com/fmatar/quarkus-openai/actions/workflows/build.yml/badge.svg)
 
 
 ## Features
