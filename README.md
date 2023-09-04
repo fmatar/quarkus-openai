@@ -6,6 +6,8 @@ This OpenAI driver is built using Quarkus, a full-stack, Kubernetes-native Java 
 easy-to-use API endpoints for OpenAI's Completion and Chat Completion services. It allows seamless integration into any
 Quarkus-based application and supports native compilation using GraalVM.
 
+![Build Status](https://github.com/fmatar/quarkus-openai/workflows/build.yml/badge.svg)
+
 ## Features
 
 - Model Information: Fetch details about OpenAI models.
@@ -84,6 +86,7 @@ cd openai-quarkus-driver
 ```
 
 ### Build the Library
+
 **JVM Mode**
 To compile and package the library for JVM, execute:
 
@@ -99,15 +102,19 @@ If you have GraalVM installed and wish to compile the library into a native exec
 ```bash
 mvn package -Pnative
 ```
+
 This will produce a native executable in the target directory.
 
 ### Running Tests
+
 To run unit tests, execute:
 
 ```bash
 mvn test
 ```
+
 ### Contribution
+
 - Fork the repository.
 - Create a new branch for each feature, fix, or documentation improvement.
 - Push your changes to your fork.
@@ -115,15 +122,17 @@ mvn test
 
 For detailed contribution guidelines, please refer to CONTRIBUTING.md.
 
-
 ### Native Compilation with GraalVM
+
 This library is fully compatible with GraalVM, enabling you to compile your Quarkus application into a native
 executable.
 
 ## License
+
 This project is open-sourced under the MIT License.
 
 ## Contributing
+
 We welcome contributions from the community. Please refer to the CONTRIBUTING.md for more details.
 
 For more information on the API and more advanced features, please refer to the official documentation.
