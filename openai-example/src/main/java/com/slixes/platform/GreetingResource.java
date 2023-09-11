@@ -1,17 +1,15 @@
 package com.slixes.platform;
 
-import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.Json;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.slixes.platform.OpenAI;
-import org.slixes.platform.openai.completion.CompletionRequest;
-import org.slixes.platform.openai.completion.CompletionResult;
-import org.slixes.platform.openai.model.Model;
+import org.slixes.platform.openai.OpenAI;
+import org.slixes.platform.openai.openai.completion.CompletionRequest;
+import org.slixes.platform.openai.openai.completion.CompletionResult;
+import org.slixes.platform.openai.openai.model.Model;
 
 import java.util.Set;
 

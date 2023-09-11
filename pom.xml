@@ -7,6 +7,30 @@
   <artifactId>quarkus-openai</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>https://mit-license.org//license.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:https://github.com/fmatar/quarkus-openai.git</connection>
+    <developerConnection>scm:git:https://github.com/fmatar/quarkus-openai.git</developerConnection>
+    <tag>${project.version}</tag>
+    <url>https://github.com/fmatar/quarkus-openai/tree/${project.scm.tag}</url>
+  </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+      </url>
+    </repository>
+  </distributionManagement>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -14,7 +38,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <maven.compiler.release>17</maven.compiler.release>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
-    <quarkus.platform.version>3.3.1</quarkus.platform.version>
+    <quarkus.platform.version>3.3.2</quarkus.platform.version>
     <javadoc-plugin.version>3.5.0</javadoc-plugin.version>
     <jandex-plugin.version>3.1.2</jandex-plugin.version>
     <jacoco-plugin.version>0.8.10</jacoco-plugin.version>
