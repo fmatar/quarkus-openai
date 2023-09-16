@@ -9,12 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.quarkus.logging.Log;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
+import org.slixes.platform.openai.openai.audio.TranscriptionResponse;
 import org.slixes.platform.openai.openai.common.Role;
 import org.slixes.platform.openai.openai.common.Usage;
 import org.slixes.platform.openai.openai.chat.ChatCompletionChoice;
@@ -25,7 +27,7 @@ import org.slixes.platform.openai.openai.chat.FunctionCall;
 import org.slixes.platform.openai.openai.model.Model;
 import org.slixes.platform.openai.openai.model.Permission;
 
-class SerializationTest {
+class SerializationTest{
 
   @Test
   void chatMessageSerialization() {
@@ -298,5 +300,50 @@ class SerializationTest {
     var properties = func.getParameters().getProperties();
     assertThat(properties.size(), equalTo(4));
     assertThat(func.getParameters().getRequired().size(), equalTo(4));
+  }
+
+  @Test
+  void testTranscriptionVerboseJsonModel(){
+    var json = """
+      {
+          "task": "transcribe",
+          "language": "english",
+          "duration": 3.16,
+          "text": "My son has taught me the meaning of life.",
+          "segments": [
+              {
+                  "id": 0,
+                  "seek": 0,
+                  "start": 0.0,
+                  "end": 2.08,
+                  "text": " My son has taught me the meaning of life.",
+                  "tokens": [
+                      50364,
+                      1222,
+                      1872,
+                      575,
+                      5928,
+                      385,
+                      264,
+                      385,
+                      8415,
+                      295,
+                      993,
+                      13,
+                      50468
+                  ],
+                  "temperature": 1.0,
+                  "avg_logprob": -0.7123122215270996,
+                  "compression_ratio": 0.8723404255319149,
+                  "no_speech_prob": 0.006854991428554058
+              }
+          ]
+      }
+      """;
+
+    var response = Json.decodeValue(json, TranscriptionResponse.class);
+
+    Log.info(Json.encode(response));
+
   }
 }

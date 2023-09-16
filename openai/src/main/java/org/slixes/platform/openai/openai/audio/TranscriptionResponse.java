@@ -1,14 +1,15 @@
 package org.slixes.platform.openai.openai.audio;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+public record TranscriptionResponse(
+  String task,
+  String language,
+  Double duration,
+  String text,
+  List<Segment> segments
+) {
 
-@Data
-@Builder
-@Jacksonized
-public class TranscriptionResponse {
-
-  String text;
 }
+

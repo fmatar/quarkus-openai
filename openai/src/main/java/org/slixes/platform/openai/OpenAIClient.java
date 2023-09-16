@@ -14,7 +14,6 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.MultipartForm;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.slixes.platform.openai.openai.audio.TranscriptionRequest;
 import org.slixes.platform.openai.openai.audio.TranscriptionResponse;
@@ -32,8 +31,8 @@ import org.slixes.platform.openai.openai.model.Model;
  * @author Fady Matar
  */
 @Path("/v1")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@Produces
+@Consumes
 @RegisterRestClient(configKey = "openai-service")
 @ClientHeaderParam(name = "Authorization", value = "{token}")
 public interface OpenAIClient {
@@ -48,7 +47,7 @@ public interface OpenAIClient {
    */
   @GET
   @Path("/models")
-  Uni<ListResponseWrapper<Model>> models();
+  Uni<ListResponseWrapper<Model>> getModels();
 
   /**
    * Gets details for a specific OpenAI model.
@@ -119,7 +118,9 @@ public interface OpenAIClient {
   }
 
   /**
-   * Response wrapper holding model data.band
+   * Wrapper class for list responses from OpenAI.
+   *
+   * @param <T> The type of the data in the list.
    */
   record ListResponseWrapper<T>(String object, Set<T> data) {
 
@@ -128,5 +129,12 @@ public interface OpenAIClient {
   @POST
   @Path("/audio/transcriptions")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  Uni<TranscriptionResponse> createTranscription( TranscriptionRequest request);
+  Uni<TranscriptionResponse> createTranscription(TranscriptionRequest request);
+
+
+  @POST
+  @Path("/audio/transcriptions")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  Uni<String> createVttTranscription(TranscriptionRequest request);
+
 }

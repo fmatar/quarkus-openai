@@ -37,7 +37,7 @@ public class OpenAI {
    * @return A Uni with a set of Model instances.
    */
   public Uni<Set<Model>> models() {
-    return client.models().onItem().transform(OpenAIClient.ListResponseWrapper::data);
+    return client.getModels().onItem().transform(OpenAIClient.ListResponseWrapper::data);
   }
 
   /**
@@ -67,8 +67,7 @@ public class OpenAI {
    * @return A Multi emitting CompletionChunk items.
    */
   public Multi<CompletionChunk> createStreamedCompletion(CompletionRequest request) {
-    return client.createStreamedCompletion(request)
-      .filter(chunk -> !chunk.getId().equals("[DONE]"));
+    return client.createStreamedCompletion(request).filter(chunk -> !chunk.getId().equals("[DONE]"));
   }
 
   /**
@@ -88,8 +87,7 @@ public class OpenAI {
    * @return A Multi emitting ChatCompletionChunk items.
    */
   public Multi<ChatCompletionChunk> createStreamedChatCompletion(ChatCompletionRequest request) {
-    return client.createStreamedChatCompletion(request)
-      .filter(chunk -> !chunk.getId().equals("[DONE]"));
+    return client.createStreamedChatCompletion(request).filter(chunk -> !chunk.getId().equals("[DONE]"));
   }
 
   /**
@@ -100,6 +98,14 @@ public class OpenAI {
    */
   public Uni<TranscriptionResponse> createTranscription(TranscriptionRequest request) {
     return client.createTranscription(request);
+  }
+
+  public Uni<String> createStringTranscription(TranscriptionRequest request) {
+    if (request.getResponseFormat().trim().equalsIgnoreCase("vtt") ||
+        request.getResponseFormat().trim().equalsIgnoreCase("srt")) {
+      return client.createVttTranscription(request);
+    }
+    throw new IllegalArgumentException("Response format must be vtt or srt");
   }
 
 }

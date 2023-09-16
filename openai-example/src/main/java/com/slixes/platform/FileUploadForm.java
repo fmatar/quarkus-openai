@@ -1,16 +1,24 @@
 package com.slixes.platform;
 
-
 import io.vertx.core.json.JsonObject;
+import jakarta.ws.rs.core.MediaType;
+import java.io.File;
+import lombok.Data;
+import org.jboss.resteasy.reactive.PartType;
 import org.jboss.resteasy.reactive.RestForm;
-import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+@Data
 public class FileUploadForm {
 
   @RestForm("file")
-  public FileUpload file;
+  @PartType(MediaType.APPLICATION_OCTET_STREAM)
+  File file;
 
   @RestForm("metadata")
-  public JsonObject metadata;
+  @PartType(MediaType.APPLICATION_JSON)
+  JsonObject metadata;
+
+  @RestForm
+  double temperature;
 }
 
