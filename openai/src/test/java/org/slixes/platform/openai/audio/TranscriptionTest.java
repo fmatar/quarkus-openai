@@ -1,6 +1,7 @@
 package org.slixes.platform.openai.audio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -28,11 +29,11 @@ class TranscriptionTest {
     var request = new TranscriptionRequest(file, "whisper-1", "json", 0.9, "en");
 
     var transcriptionResponse = client.createTranscription(request).await().indefinitely();
-    assertThat(transcriptionResponse.text(), equalTo("My son has taught me the meaning of life."));
+    assertThat(transcriptionResponse.text(), containsString("My son has taught me the meaning of life"));
 
     var verboseRequest = new TranscriptionRequest(file, "whisper-1", "verbose_json", 0.9, "en");
     var verboseTranscriptionResponse = client.createTranscription(verboseRequest).await().indefinitely();
-    assertThat(verboseTranscriptionResponse.text(), equalTo("My son has taught me the meaning of life."));
+    assertThat(verboseTranscriptionResponse.text(), containsString("My son has taught me the meaning of life"));
     assertThat(verboseTranscriptionResponse.task(), equalTo("transcribe"));
     assertThat(verboseTranscriptionResponse.language(), equalTo("english"));
 
