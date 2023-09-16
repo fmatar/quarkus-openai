@@ -17,6 +17,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.slixes.platform.openai.openai.audio.TranscriptionRequest;
 import org.slixes.platform.openai.openai.audio.TranscriptionResponse;
+import org.slixes.platform.openai.openai.audio.TranslationRequest;
 import org.slixes.platform.openai.openai.chat.ChatCompletionChunk;
 import org.slixes.platform.openai.openai.chat.ChatCompletionRequest;
 import org.slixes.platform.openai.openai.chat.ChatCompletionResult;
@@ -135,6 +136,19 @@ public interface OpenAIClient {
   @POST
   @Path("/audio/transcriptions")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  Uni<String> createVttTranscription(TranscriptionRequest request);
+  Uni<String> createTextTranscription(TranscriptionRequest request);
+
+
+  @POST
+  @Path("/audio/translations")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  Uni<TranscriptionResponse> createTranslation(TranslationRequest request);
+
+
+  @POST
+  @Path("/audio/translations")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  Uni<String> createTextTranslation(TranslationRequest request);
+
 
 }

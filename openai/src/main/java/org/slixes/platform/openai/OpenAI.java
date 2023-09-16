@@ -8,6 +8,7 @@ import java.util.Set;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slixes.platform.openai.openai.audio.TranscriptionRequest;
 import org.slixes.platform.openai.openai.audio.TranscriptionResponse;
+import org.slixes.platform.openai.openai.audio.TranslationRequest;
 import org.slixes.platform.openai.openai.chat.ChatCompletionChunk;
 import org.slixes.platform.openai.openai.chat.ChatCompletionRequest;
 import org.slixes.platform.openai.openai.chat.ChatCompletionResult;
@@ -103,9 +104,20 @@ public class OpenAI {
   public Uni<String> createStringTranscription(TranscriptionRequest request) {
     if (request.getResponseFormat().trim().equalsIgnoreCase("vtt") ||
         request.getResponseFormat().trim().equalsIgnoreCase("srt")) {
-      return client.createVttTranscription(request);
+      return client.createTextTranscription(request);
     }
     throw new IllegalArgumentException("Response format must be vtt or srt");
   }
 
+  public Uni<TranscriptionResponse> createTranslation(TranslationRequest request) {
+    return client.createTranslation(request);
+  }
+
+  public Uni<String> createStringTranslation(TranslationRequest request) {
+    if (request.getResponseFormat().trim().equalsIgnoreCase("vtt") ||
+      request.getResponseFormat().trim().equalsIgnoreCase("srt")) {
+      return client.createTextTranslation(request);
+    }
+    throw new IllegalArgumentException("Response format must be vtt or srt");
+  }
 }
