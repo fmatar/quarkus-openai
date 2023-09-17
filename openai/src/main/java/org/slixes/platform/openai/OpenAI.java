@@ -16,6 +16,9 @@ import org.slixes.platform.openai.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.openai.completion.CompletionResult;
 import org.slixes.platform.openai.openai.model.Model;
+import org.slixes.platform.openai.openai.moderation.ModerationRequest;
+import org.slixes.platform.openai.openai.moderation.ModerationResponse;
+import org.slixes.platform.openai.openai.moderation.ModerationResult;
 
 /**
  * Client for accessing the OpenAI API. Provides reactive methods for integrating with OpenAI capabilities like text
@@ -119,5 +122,9 @@ public class OpenAI {
       return client.createTextTranslation(request);
     }
     throw new IllegalArgumentException("Response format must be vtt or srt");
+  }
+
+  public Uni<ModerationResponse> createModeration(ModerationRequest request) {
+    return client.createModeration(request);
   }
 }

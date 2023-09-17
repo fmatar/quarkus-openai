@@ -25,6 +25,8 @@ import org.slixes.platform.openai.openai.completion.CompletionChunk;
 import org.slixes.platform.openai.openai.completion.CompletionRequest;
 import org.slixes.platform.openai.openai.completion.CompletionResult;
 import org.slixes.platform.openai.openai.model.Model;
+import org.slixes.platform.openai.openai.moderation.ModerationRequest;
+import org.slixes.platform.openai.openai.moderation.ModerationResponse;
 
 /**
  * REST client interface for calling OpenAI API endpoints.
@@ -151,4 +153,8 @@ public interface OpenAIClient {
   Uni<String> createTextTranslation(TranslationRequest request);
 
 
+  @POST
+  @Path("/moderations")
+  @Consumes(MediaType.APPLICATION_JSON)
+  Uni<ModerationResponse> createModeration(ModerationRequest request);
 }
