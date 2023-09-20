@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openai-example</artifactId>
   <parent>
-    <groupId>org.slixes</groupId>
+    <groupId>io.slixes</groupId>
     <artifactId>quarkus-openai</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
