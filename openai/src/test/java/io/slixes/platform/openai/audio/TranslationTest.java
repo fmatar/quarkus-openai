@@ -5,15 +5,13 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
 import io.slixes.platform.openai.OpenAI;
-import io.vertx.core.json.Json;
+import io.slixes.platform.openai.openai.audio.TranslationRequest;
 import jakarta.inject.Inject;
 import java.io.File;
 import java.net.URL;
 import org.junit.jupiter.api.Test;
-import io.slixes.platform.openai.openai.audio.TranslationRequest;
 
 @QuarkusTest
 class TranslationTest {
@@ -38,10 +36,9 @@ class TranslationTest {
 
     var vttRequest = new TranslationRequest(file, "whisper-1", "vtt", 0.9);
     var vttResponse = client.createStringTranslation(vttRequest).await().indefinitely();
-    Log.info(Json.encode(vttResponse));
+    assert (vttResponse.contains("I want to eat a banana"));
 
     var srtRequest = new TranslationRequest(file, "whisper-1", "srt", 0.9);
     var srtResponse = client.createStringTranslation(srtRequest).await().indefinitely();
-    Log.info(Json.encode(srtResponse));
   }
 }

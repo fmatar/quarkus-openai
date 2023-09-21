@@ -20,7 +20,7 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.slixes</groupId>
+        <groupId>io.slixes</groupId>
         <artifactId>openai</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -40,7 +40,7 @@
       <artifactId>lombok</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slixes</groupId>
+      <groupId>io.slixes</groupId>
       <artifactId>openai</artifactId>
     </dependency>
     <dependency>

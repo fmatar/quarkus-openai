@@ -39,11 +39,8 @@ class TranscriptionTest {
 
     var vttRequest = new TranscriptionRequest(file, "whisper-1", "vtt", 0.9, "en");
     var vttResponse = client.createStringTranscription(vttRequest).await().indefinitely();
-    Log.info(Json.encode(vttResponse));
-
 
     var srtRequest = new TranscriptionRequest(file, "whisper-1", "srt", 0.9, "en");
     var srtResponse = client.createStringTranscription(srtRequest).await().indefinitely();
-    Log.info(Json.encode(srtResponse));
   }
 }
