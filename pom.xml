@@ -37,12 +37,12 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <maven.compiler.release>17</maven.compiler.release>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
-    <quarkus.platform.version>3.3.3</quarkus.platform.version>
+    <quarkus.platform.version>3.4.3</quarkus.platform.version>
     <javadoc-plugin.version>3.5.0</javadoc-plugin.version>
     <jandex-plugin.version>3.1.2</jandex-plugin.version>
     <jacoco-plugin.version>0.8.10</jacoco-plugin.version>
     <surefire-plugin.version>3.1.2</surefire-plugin.version>
-    <lombok.version>1.18.28</lombok.version>
+    <lombok.version>1.18.30</lombok.version>
   </properties>
   <dependencyManagement>
     <dependencies>
