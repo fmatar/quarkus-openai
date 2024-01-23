@@ -3,6 +3,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>org.slixes</groupId>
   <artifactId>quarkus-openai</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -19,6 +20,7 @@
     <jacoco-plugin.version>0.8.10</jacoco-plugin.version>
     <surefire-plugin.version>3.1.2</surefire-plugin.version>
     <lombok.version>1.18.28</lombok.version>
+    <versions.java-security-toolkit>1.1.1</versions.java-security-toolkit>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -37,6 +39,11 @@
       <dependency>
         <groupId>openai</groupId>
         <artifactId>openai</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>io.github.pixee</groupId>
+        <artifactId>java-security-toolkit</artifactId>
+        <version>${versions.java-security-toolkit}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
