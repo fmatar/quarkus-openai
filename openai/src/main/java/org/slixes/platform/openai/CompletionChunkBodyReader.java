@@ -1,5 +1,6 @@
 package org.slixes.platform.openai;
 
+import io.github.pixee.security.BoundedLineReader;
 import io.vertx.core.json.Json;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.WebApplicationException;
@@ -29,7 +30,7 @@ public class CompletionChunkBodyReader implements MessageBodyReader<CompletionCh
 	@Override
 	public CompletionChunk readFrom(Class<CompletionChunk> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(entityStream))) {
-			var json = reader.readLine();
+			var json = BoundedLineReader.readLine(reader, 5_000_000);
 			if (json.equals("[DONE]")) {
 				entityStream.close();
 				var result = new CompletionChunk();
