@@ -30,7 +30,7 @@ public class CompletionChunkBodyReader implements MessageBodyReader<CompletionCh
 	public CompletionChunk readFrom(Class<CompletionChunk> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(entityStream))) {
 			var json = reader.readLine();
-			if (json.equals("[DONE]")) {
+			if ("[DONE]".equals(json)) {
 				entityStream.close();
 				var result = new CompletionChunk();
 				result.setId(json);
